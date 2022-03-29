@@ -94,10 +94,12 @@ spec:
               containerPort: 8888
               protocol: TCP
           livenessProbe:
+            timeoutSeconds: 60
             httpGet:
               path: /
               port: http
           readinessProbe:
+            timeoutSeconds: 60
             httpGet:
               path: /
               port: http
