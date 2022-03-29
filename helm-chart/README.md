@@ -1,7 +1,7 @@
 
-# safe-config-service Helm chart
+# safe-transaction-service Helm chart
 
-Helm chart for safe-config-service, deployed to GCP [Artifact Repository](https://console.cloud.google.com/artifacts/docker/clabs-gnosis-safe/us-central1/clabs-gnosis-safe/safe-config-service?project=clabs-gnosis-safe&supportedpurview=project) as OCI Helm chart.
+Helm chart for safe-transaction-service, deployed to GCP [Artifact Repository](https://console.cloud.google.com/artifacts/docker/clabs-gnosis-safe/us-central1/clabs-gnosis-safe/safe-transaction-service?project=clabs-gnosis-safe&supportedpurview=project) as OCI Helm chart.
 
 ## Artifact Repository Deployment
 
@@ -21,7 +21,7 @@ $ gcloud auth configure-docker us-central1-docker.pkg.dev
 
 4. Push the chart `.tgz` file
 ```bash
-$ helm push ssafe-config-service-0.1.0.tgz oci://us-central1-docker.pkg.dev/clabs-gnosis-safe/clabs-gnosis-safe
+$ helm push safe-transaction-service-0.1.0.tgz oci://us-central1-docker.pkg.dev/clabs-gnosis-safe/clabs-gnosis-safe
 ```
 
 ## Values Reference
