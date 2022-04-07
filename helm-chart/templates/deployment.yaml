@@ -91,16 +91,14 @@ spec:
             - name: http
               containerPort: 8888
               protocol: TCP
+          {{- with .Values.livenessProbe }}
           livenessProbe:
-            timeoutSeconds: 60
-            httpGet:
-              path: /
-              port: http
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with .Values.livenessProbe }}
           readinessProbe:
-            timeoutSeconds: 60
-            httpGet:
-              path: /
-              port: http
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}

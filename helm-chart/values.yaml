@@ -75,6 +75,20 @@ ingress:
     #    hosts:
     #      - transaction-service.celo-safe.io
 
+# -- Liveness probe configuration
+livenessProbe:
+  timeoutSeconds: 60
+  httpGet:
+    path: /
+    port: http
+
+# -- Readiness probe configuration
+readinessProbe:
+  timeoutSeconds: 60
+  httpGet:
+    path: /
+    port: http
+
 # -- Container resources
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
