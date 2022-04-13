@@ -20,6 +20,7 @@ The chart is deployed to Artifact Repository through Cloud Build (using [../clou
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Kubernetes pod affinity |
+| env.ethereumNodeUrl | string | `"https://forno.celo.org"` | Ethereum Node enviromental variable |
 | fullnameOverride | string | `""` | Chart full name override |
 | global.postgresql.postgresqlDatabase | string | `""` | Postgresql depencency chart database for storing data |
 | global.postgresql.postgresqlPassword | string | `""` | Postgresql depencency chart password |

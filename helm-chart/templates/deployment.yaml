@@ -36,7 +36,7 @@ spec:
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.postgresqlPassword}}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.postgresqlDatabase }}
             - name: ETHEREUM_NODE_URL
-              value: https://forno.celo.org
+              value: {{ .Values.env.ethereumNodeUrl }}
             - name: REDIS_URL
               value: redis://:{{ .Values.global.redis.password }}@{{ .Release.Name }}-redis-master:6379/0
             - name: DJANGO_SETTINGS_MODULE
@@ -57,7 +57,7 @@ spec:
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.postgresqlPassword}}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.postgresqlDatabase }}
             - name: ETHEREUM_NODE_URL
-              value: https://forno.celo.org
+              value: {{ .Values.env.ethereumNodeUrl }}
             - name: REDIS_URL
               value: redis://:{{ .Values.global.redis.password }}@{{ .Release.Name }}-redis-master:6379/0
             - name: DJANGO_SETTINGS_MODULE
@@ -78,7 +78,7 @@ spec:
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.postgresqlPassword}}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.postgresqlDatabase }}
             - name: ETHEREUM_NODE_URL
-              value: https://forno.celo.org
+              value: {{ .Values.env.ethereumNodeUrl }}
             - name: REDIS_URL
               value: redis://:{{ .Values.global.redis.password }}@{{ .Release.Name }}-redis-master:6379/0
             - name: DJANGO_SETTINGS_MODULE

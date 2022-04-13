@@ -21,6 +21,10 @@ image:
 # -- Image pull secrets
 imagePullSecrets: []
 
+env:
+  # -- Ethereum Node enviromental variable
+  ethereumNodeUrl: https://forno.celo.org
+
 serviceAccount:
   # -- Specifies whether a service account should be created
   create: true
