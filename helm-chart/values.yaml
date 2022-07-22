@@ -16,7 +16,9 @@ image:
   # -- Image pullpolicy
   pullPolicy: IfNotPresent
   # -- Image tag
-  tag: "3b5352aac075e90971c53be3c20085409cffdf38"
+  # Please override in terraform via
+  # celo-org/infrastructure/terraform-modules/clabs-gnosis-safe-staging/files/transaction-service-values.yaml
+  tag: "61ee03ee2f712941c2b319d1cf2240c414a2177c"
 
 # -- Image pull secrets
 imagePullSecrets: []
@@ -120,12 +122,9 @@ global:
     # -- Redis depencency chart password
     password: ""
   postgresql:
-    auth:
-      # -- Postgresql depencency chart database for storing data
-      database: ""
-      # -- Postgresql depencency chart password
-      postgresPassword: ""
+    # -- Postgresql depencency chart database for storing data
+    postgresqlDatabase: ""
+    # -- Postgresql depencency chart password
+    postgresqlPassword: ""
     # -- Postgresql depencency chart service port
-    service:
-      ports:
-        postgresql: 5432
+    servicePort: 5432
