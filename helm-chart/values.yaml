@@ -16,6 +16,8 @@ image:
   # -- Image pullpolicy
   pullPolicy: IfNotPresent
   # -- Image tag
+  # Please override in terraform via
+  # celo-org/infrastructure/terraform-modules/clabs-gnosis-safe-staging/files/transaction-service-values.yaml
   tag: "61ee03ee2f712941c2b319d1cf2240c414a2177c"
 
 # -- Image pull secrets
