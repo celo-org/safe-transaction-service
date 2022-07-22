@@ -16,7 +16,7 @@ image:
   # -- Image pullpolicy
   pullPolicy: IfNotPresent
   # -- Image tag
-  tag: "61ee03ee2f712941c2b319d1cf2240c414a2177c"
+  tag: "3b5352aac075e90971c53be3c20085409cffdf38"
 
 # -- Image pull secrets
 imagePullSecrets: []
@@ -120,9 +120,12 @@ global:
     # -- Redis depencency chart password
     password: ""
   postgresql:
-    # -- Postgresql depencency chart database for storing data
-    postgresqlDatabase: ""
-    # -- Postgresql depencency chart password
-    postgresqlPassword: ""
+    auth:
+      # -- Postgresql depencency chart database for storing data
+      database: ""
+      # -- Postgresql depencency chart password
+      postgresPassword: ""
     # -- Postgresql depencency chart service port
-    servicePort: 5432
+    service:
+      ports:
+        postgresql: 5432
