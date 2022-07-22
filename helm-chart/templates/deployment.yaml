@@ -34,7 +34,7 @@ spec:
           command: ["docker/web/celery/worker/run.sh"]
           env:
             - name: DATABASE_URL
-              value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword}}@{{ .Release.Name }}-postgresql:{{ .Values.global.postgresql.service.ports.postgresql }}/{{ .Values.global.postgresql.auth.database }}
+              value: postgres://postgres:{{ .Values.global.postgresql.postgresqlPassword}}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.postgresqlDatabase }}
             - name: ETHEREUM_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: REDIS_URL
@@ -55,7 +55,7 @@ spec:
           command: ["docker/web/celery/scheduler/run.sh"]
           env:
             - name: DATABASE_URL
-              value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword}}@{{ .Release.Name }}-postgresql:{{ .Values.global.postgresql.service.ports.postgresql }}/{{ .Values.global.postgresql.auth.database }}
+              value: postgres://postgres:{{ .Values.global.postgresql.postgresqlPassword}}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.postgresqlDatabase }}
             - name: ETHEREUM_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: REDIS_URL
@@ -76,7 +76,7 @@ spec:
           command: ["docker/web/run_web.sh"]
           env:
             - name: DATABASE_URL
-              value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword}}@{{ .Release.Name }}-postgresql:{{ .Values.global.postgresql.service.ports.postgresql }}/{{ .Values.global.postgresql.auth.database }}
+              value: postgres://postgres:{{ .Values.global.postgresql.postgresqlPassword}}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.postgresqlDatabase }}
             - name: ETHEREUM_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: REDIS_URL
