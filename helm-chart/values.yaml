@@ -38,9 +38,6 @@ serviceAccount:
 # -- Custom pod annotations
 podAnnotations: {}
 
-# -- Custom pod annotations
-podAnnotations: {}
-
 # -- Custom pod security context
 podSecurityContext: {}
   # fsGroup: 2000
@@ -63,6 +60,8 @@ service:
 ingress:
   # -- Ingress enabled
   enabled: true
+  # -- Ingress class name
+  className: nginx
   # -- Custom Ingress annotations 
   annotations: {}
 
