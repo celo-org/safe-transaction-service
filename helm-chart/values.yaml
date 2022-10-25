@@ -26,6 +26,8 @@ imagePullSecrets: []
 env:
   # -- Ethereum Node enviromental variable
   ethereumNodeUrl: https://forno.celo.org
+  # -- Django Secret Key
+  djangoSecretKey: ""
 
 serviceAccount:
   # -- Specifies whether a service account should be created
@@ -118,14 +120,35 @@ tolerations: []
 # -- Kubernetes pod affinity
 affinity: {}
 
+postgresql:
+  image:
+    # -- Postgresql depencency chart image tag (version)
+    tag: "13.8.0"
+
+redis:
+  image:
+    # -- Redis depencency chart image tag (version)
+    tag: "6.2.7"
+  replica:
+    # -- Redis depencency chart replicas
+    replicaCount: 1
+
+rabbitmq:
+  auth:
+    # -- RabbitMQ depencency chart password
+    password: ""
+
 global:
   redis:
     # -- Redis depencency chart password
     password: ""
   postgresql:
-    # -- Postgresql depencency chart database for storing data
-    postgresqlDatabase: ""
-    # -- Postgresql depencency chart password
-    postgresqlPassword: ""
-    # -- Postgresql depencency chart service port
-    servicePort: 5432
+    auth:
+      # -- Postgresql depencency chart database for storing data
+      database: ""
+      # -- Postgresql depencency chart password
+      postgresPassword: ""
+    service:
+      ports:
+        # -- Postgresql depencency chart service port
+        postgresql: 5432
