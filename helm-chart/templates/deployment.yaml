@@ -41,6 +41,8 @@ spec:
               value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.auth.database }}
             - name: ETHEREUM_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
+            - name: ETHEREUM_TRACING_NODE_URL
+              value: {{ .Values.env.ethereumNodeUrl }}
             - name: ETH_L2_NETWORK
               value: "1"
             - name: REDIS_URL
@@ -66,6 +68,8 @@ spec:
               value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.auth.database }}
             - name: ETHEREUM_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
+            - name: ETHEREUM_TRACING_NODE_URL
+              value: {{ .Values.env.ethereumNodeUrl }}
             - name: ETH_L2_NETWORK
               value: "1"
             - name: REDIS_URL
@@ -89,7 +93,13 @@ spec:
               value: "notifications,tokens"
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.auth.database }}
+            - name: DEBUG
+              value: "false"
+            - name: PYTHONPATH
+              value: "/app/"
             - name: ETHEREUM_NODE_URL
+              value: {{ .Values.env.ethereumNodeUrl }}
+            - name: ETHEREUM_TRACING_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: ETH_L2_NETWORK
               value: "1"
@@ -112,7 +122,13 @@ spec:
           env:
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.auth.database }}
+            - name: DEBUG
+              value: "false"
+            - name: PYTHONPATH
+              value: "/app/"
             - name: ETHEREUM_NODE_URL
+              value: {{ .Values.env.ethereumNodeUrl }}
+            - name: ETHEREUM_TRACING_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: ETH_L2_NETWORK
               value: "1"
@@ -137,7 +153,13 @@ spec:
               value: "notifications,tokens"
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.auth.database }}
+            - name: DEBUG
+              value: "false"
+            - name: PYTHONPATH
+              value: "/app/"
             - name: ETHEREUM_NODE_URL
+              value: {{ .Values.env.ethereumNodeUrl }}
+            - name: ETHEREUM_TRACING_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: ETH_L2_NETWORK
               value: "1"
@@ -164,7 +186,13 @@ spec:
           env:
             - name: DATABASE_URL
               value: postgres://postgres:{{ .Values.global.postgresql.auth.postgresPassword }}@{{ .Release.Name }}-postgresql:5432/{{ .Values.global.postgresql.auth.database }}
+            - name: DEBUG
+              value: "false"
+            - name: PYTHONPATH
+              value: "/app/"
             - name: ETHEREUM_NODE_URL
+              value: {{ .Values.env.ethereumNodeUrl }}
+            - name: ETHEREUM_TRACING_NODE_URL
               value: {{ .Values.env.ethereumNodeUrl }}
             - name: ETH_L2_NETWORK
               value: "1"
