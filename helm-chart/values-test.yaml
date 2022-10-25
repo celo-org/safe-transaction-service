@@ -1,0 +1,46 @@
+image:
+  repository: us-central1-docker.pkg.dev/clabs-gnosis-safe/images/safe-transaction-service
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "celo-safe"
+
+ingress:
+  enabled: true
+  className: ${default_ingress_class}
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+  hosts:
+    - host: alfajores-tx-svc.${dns_suffix}
+      paths:
+      - path: /
+
+  tls:
+  - secretName: alfajores-tx-svc-staging-tls
+    hosts:
+       - alfajores-tx-svc.${dns_suffix}
+
+env:
+  djangoSecretKey: test
+  ethereumNodeUrl: https://alfajores-forno.celo-testnet.org
+
+postgresql:
+  image:
+    tag: "13.8.0"
+
+redis:
+  image:
+    tag: "6.2.7"
+  replica:
+    replicaCount: 1
+
+rabbitmq:
+  auth:
+    password: test
+
+global:
+  postgresql:
+    auth:
+      postgresPassword: test
+      database: "database"
+  redis:
+    password: test
