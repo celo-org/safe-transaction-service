@@ -1,7 +1,6 @@
-{{- if .Values.ingress.enabled -}}
-{{- $fullName := include "safe-transaction-service-helm.fullname" . -}}
-{{- $svcPortHttp := .Values.service.portHttp -}}
-{{- $svcPortFlower := .Values.service.portFlower -}}
+{{- if .Values.flower.ingress.enabled -}}
+{{- $fullName := (list "flower" (include "safe-transaction-service-helm.fullname" .) | join "-") -}}
+{{- $svcPortFlower := .Values.flower.service.port -}}
 {{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1
 {{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
@@ -14,51 +13,28 @@ metadata:
   name: {{ $fullName }}
   labels:
     {{- include "safe-transaction-service-helm.labels" . | nindent 4 }}
-  {{- with .Values.ingress.annotations }}
+    app.kubernetes.io/component: flower
+  {{- with .Values.flower.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
-  ingressClassName: {{ .Values.ingress.className }}
+  {{- if and .Values.flower.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.flower.ingress.className }}
   {{- end }}
-  {{- if .Values.ingress.tls }}
+  {{- if .Values.flower.ingress.tls }}
   tls:
-    {{- range .Values.ingress.tls }}
+    {{- range .Values.flower.ingress.tls }}
     - hosts:
         {{- range .hosts }}
         - {{ . | quote }}
         {{- end }}
       secretName: {{ .secretName }}
-    - hosts:
-        {{- range .hosts }}
-        - "flower-{{ . }}"
-        {{- end }}
-      secretName: flower-{{ .secretName }}
     {{- end }}
   {{- end }}
   rules:
-    {{- range .Values.ingress.hosts }}
+    {{- range .Values.flower.ingress.hosts }}
     - host: {{ .host | quote }}
-      http:
-        paths:
-          {{- range .paths }}
-          - path: {{ .path }}
-            {{- if (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
-            pathType: ImplementationSpecific
-            {{- end }}
-            backend:
-              {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
-              service:
-                name: {{ $fullName }}
-                port:
-                  number: {{ $svcPortHttp }}
-              {{- else }}
-              serviceName: {{ $fullName }}
-              servicePort: {{ $svcPortHttp }}
-              {{- end }}
-          {{- end }}
-    - host: "flower-{{ .host }}"
       http:
         paths:
           {{- range .paths }}

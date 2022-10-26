@@ -7,7 +7,7 @@ nameOverride: ""
 # -- Chart full name override
 fullnameOverride: ""
 
-# -- Number of deployment replicas
+# -- Common number of deployment replicas (applied to all deployments)
 replicaCount: 1
 
 image:
@@ -53,14 +53,6 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-service:
-  # -- Kubernetes Service Type
-  type: ClusterIP
-  # -- Kubernetes Service Type
-  portHttp: 80
-  # -- Port for flower service
-  portFlower: 5555
-
 ingress:
   # -- Ingress enabled
   enabled: true
@@ -98,7 +90,7 @@ readinessProbe:
     path: /
     port: http
 
-# -- Container resources
+# -- Common container resources (applied to all deployments)
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious
   # choice for the user. This also increases chances charts run on environments with little
@@ -119,6 +111,46 @@ tolerations: []
 
 # -- Kubernetes pod affinity
 affinity: {}
+
+# -- Indexer-worker deployment especific values. Has priority over common values.
+indexerWorker: {}
+  # replicaCount: 1
+  # resources: {}
+
+# -- Contracts-token-worker especific values. Has priority over common values.
+contractsTokenWorker: {}
+  # replicaCount: 1
+  # resources: {}
+
+# -- Notifications-webhook-worker especific values. Has priority over common values.
+notificationsWebhooksWorker: {}
+  # replicaCount: 1
+  # resources: {}
+
+# -- Scheduler especific values. Has priority over common values.
+scheduler: {}
+  # replicaCount: 1
+  # resources: {}
+
+# -- Flower especific values. Has priority over common values.
+flower:
+  # replicaCount: 1
+  # resources: {}
+  service:
+    # -- Flower Kubernetes Service Type
+    type: ClusterIP
+    # -- Port for flower service
+    port: 5555
+
+# -- Web especific values. Has priority over common values.
+web:
+  # replicaCount: 1
+  # resources: {}
+  service:
+    # -- Web Kubernetes Service Type
+    type: ClusterIP
+    # -- Port for web service
+    port: 80
 
 postgresql:
   image:

@@ -19,9 +19,67 @@ ingress:
     hosts:
        - alfajores-tx-svc.${dns_suffix}
 
+resources:
+  limits:
+    cpu: 150m
+  requests:
+    memory: 264Mi
+
 env:
   djangoSecretKey: test
   ethereumNodeUrl: https://alfajores-forno.celo-testnet.org
+
+indexerWorker:
+  replicaCount: 2
+  resources:
+    limits:
+      cpu: 100m
+      memory: 128Mi
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
+contractsTokenWorker: {}
+
+notificationsWebhooksWorker: {}
+
+scheduler: {}
+
+flower:
+  service:
+    port: 5555
+  ingress:
+    enabled: true
+    className: test
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: flower-alfajores-tx-svc.test
+        paths:
+        - path: /
+
+    tls:
+    - secretName: flower-alfajores-tx-svc-staging-tls
+      hosts:
+        - flower-alfajores-tx-svc.test
+
+web:
+  service:
+    port: 80
+  ingress:
+    enabled: true
+    className: test
+    annotations:
+      cert-manager.io/cluster-issuer: letsencrypt-prod
+    hosts:
+      - host: alfajores-tx-svc.test
+        paths:
+        - path: /
+
+    tls:
+    - secretName: alfajores-tx-svc-staging-tls
+      hosts:
+        - alfajores-tx-svc.test
 
 postgresql:
   image:
