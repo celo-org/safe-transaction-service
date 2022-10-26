@@ -4,21 +4,6 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: "celo-safe"
 
-ingress:
-  enabled: true
-  className: ${default_ingress_class}
-  annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-  hosts:
-    - host: alfajores-tx-svc.${dns_suffix}
-      paths:
-      - path: /
-
-  tls:
-  - secretName: alfajores-tx-svc-staging-tls
-    hosts:
-       - alfajores-tx-svc.${dns_suffix}
-
 resources:
   limits:
     cpu: 150m

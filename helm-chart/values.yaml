@@ -53,29 +53,6 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
-ingress:
-  # -- Ingress enabled
-  enabled: true
-  # -- Ingress class name
-  className: nginx
-  # -- Custom Ingress annotations 
-  annotations: {}
-
-  # -- List of hosts to expose safe-client-gateway. See values.yaml for an example.
-  hosts: []
-    #  - host: transaction-service.celo-safe.io
-    #    paths:
-    #    - path: /
-    #      backend:
-    #        serviceName: transaction-service.celo-safe.io
-    #        servicePort: 80
-
-  # -- TLS secret for exposing safe-client-gateway with https. See values.yaml for an example.
-  tls: []
-    #  - secretName: transaction-service-secret
-    #    hosts:
-    #      - transaction-service.celo-safe.io
-
 # -- Liveness probe configuration
 livenessProbe:
   timeoutSeconds: 60
@@ -141,6 +118,25 @@ flower:
     type: ClusterIP
     # -- Port for flower service
     port: 5555
+  ingress:
+    # -- Flower Ingress enabled
+    enabled: false
+    # -- Flower Ingress class name
+    className: nginx
+    # -- Flower custom Ingress annotations 
+    annotations: {}
+
+    # -- Flower list of hosts to expose flower component. See values.yaml for an example.
+    hosts: []
+      #  - host: flower-transaction-service.celo-safe.io
+      #    paths:
+      #    - path: /
+
+    # -- Flower TLS secret for exposing flower component with https. See values.yaml for an example.
+    tls: []
+      #  - secretName: flower-transaction-service-secret
+      #    hosts:
+      #      - flower-transaction-service.celo-safe.io
 
 # -- Web especific values. Has priority over common values.
 web:
@@ -151,6 +147,25 @@ web:
     type: ClusterIP
     # -- Port for web service
     port: 80
+  ingress:
+    # -- Web Ingress enabled
+    enabled: false
+    # -- Web Ingress class name
+    className: nginx
+    # -- Web custom Ingress annotations 
+    annotations: {}
+
+    # -- Web list of hosts to expose web component. See values.yaml for an example.
+    hosts: []
+      #  - host: transaction-service.celo-safe.io
+      #    paths:
+      #    - path: /
+
+    # -- Web TLS secret for exposing web component with https. See values.yaml for an example.
+    tls: []
+      #  - secretName: transaction-service-secret
+      #    hosts:
+      #      - transaction-service.celo-safe.io
 
 postgresql:
   image:
