@@ -12,42 +12,63 @@ The chart is deployed to Artifact Repository through Cloud Build (using [../clou
 
 | Repository | Name | Version |
 |------------|------|---------|
-| https://charts.bitnami.com/bitnami | postgresql | 10.10.3 |
-| https://charts.bitnami.com/bitnami | redis | 15.3.2 |
+| https://charts.bitnami.com/bitnami | postgresql | 11.9.11 |
+| https://charts.bitnami.com/bitnami | rabbitmq | 11.0.4 |
+| https://charts.bitnami.com/bitnami | redis | 17.3.7 |
 
 ## Values
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | Kubernetes pod affinity |
+| contractsTokenWorker | object | `{}` | Contracts-token-worker especific values. Has priority over common values. |
+| env.djangoSecretKey | string | `""` | Django Secret Key |
+| env.ethereumNodeUrl | string | `"https://forno.celo.org"` | Ethereum Node enviromental variable |
+| flower | object | `{"ingress":{"annotations":{},"className":"nginx","enabled":false,"hosts":[],"tls":[]},"service":{"port":5555,"type":"ClusterIP"}}` | Flower especific values. Has priority over common values. |
+| flower.ingress.annotations | object | `{}` | Flower custom Ingress annotations  |
+| flower.ingress.className | string | `"nginx"` | Flower Ingress class name |
+| flower.ingress.enabled | bool | `false` | Flower Ingress enabled |
+| flower.ingress.hosts | list | `[]` | Flower list of hosts to expose flower component. See values.yaml for an example. |
+| flower.ingress.tls | list | `[]` | Flower TLS secret for exposing flower component with https. See values.yaml for an example. |
+| flower.service.port | int | `5555` | Port for flower service |
+| flower.service.type | string | `"ClusterIP"` | Flower Kubernetes Service Type |
 | fullnameOverride | string | `""` | Chart full name override |
-| global.postgresql.postgresqlDatabase | string | `""` | Postgresql dependency chart database for storing data |
-| global.postgresql.postgresqlPassword | string | `""` | Postgresql dependency chart password |
+| global.postgresql.auth.database | string | `""` | Postgresql depencency chart database for storing data |
+| global.postgresql.auth.postgresPassword | string | `""` | Postgresql depencency chart password |
+| global.postgresql.service.ports.postgresql | int | `5432` | Postgresql depencency chart service port |
+| global.redis.password | string | `""` | Redis depencency chart password |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pullpolicy |
-| image.repository | string | `"us-central1-docker.pkg.dev/clabs-gnosis-safe/charts/safe-config-service"` | Image repository |
-| image.tag | string | `"7563d11ebf253aa251177eb010e14f23e03ac73e"` | Image tag |
+| image.repository | string | `"us-central1-docker.pkg.dev/clabs-gnosis-safe/safe-transaction-service"` | Image repository |
+| image.tag | string | `"61ee03ee2f712941c2b319d1cf2240c414a2177c"` | Image tag Please override in terraform via celo-org/infrastructure/terraform-modules/clabs-gnosis-safe-staging/files/transaction-service-values.yaml |
 | imagePullSecrets | list | `[]` | Image pull secrets |
-| ingress.annotations | object | `{}` | Custom Ingress annotations |
-| ingress.className | string | `"nginx"` | Ingress class name |
-| ingress.enabled | bool | `true` | Ingress enabled |
-| ingress.hosts | list | `[]` | List of hosts to expose safe-config-service. See values.yaml for an example. |
-| ingress.tls | list | `[]` | TLS secret for exposing safe-config-service with https. See values.yaml for an example. |
-| livenessProbe | object | `{"timeoutSeconds":30}` | Liveness probe configuration |
+| indexerWorker | object | `{}` | Indexer-worker deployment especific values. Has priority over common values. |
+| livenessProbe | object | `{"httpGet":{"path":"/","port":"http"},"timeoutSeconds":60}` | Liveness probe configuration |
 | nameOverride | string | `""` | Chart name override |
 | nodeSelector | object | `{}` | Kubernetes node selector |
+| notificationsWebhooksWorker | object | `{}` | Notifications-webhook-worker especific values. Has priority over common values. |
 | podAnnotations | object | `{}` | Custom pod annotations |
 | podSecurityContext | object | `{}` | Custom pod security context |
-| readinessProbe | object | `{"timeoutSeconds":30}` | Readiness probe configuration |
-| replicaCount | int | `1` | Number of deployment replicas |
-| resources | object | `{}` | Container resources |
-| safeConfigService.secretKey | string | `""` | Secret key for safe-config-service |
+| postgresql.image.tag | string | `"13.8.0"` | Postgresql depencency chart image tag (version) |
+| rabbitmq.auth.password | string | `""` | RabbitMQ depencency chart password |
+| readinessProbe | object | `{"httpGet":{"path":"/","port":"http"},"timeoutSeconds":60}` | Readiness probe configuration |
+| redis.image.tag | string | `"6.2.7"` | Redis depencency chart image tag (version) |
+| redis.replica.replicaCount | int | `1` | Redis depencency chart replicas |
+| replicaCount | int | `1` | Common number of deployment replicas (applied to all deployments) |
+| resources | object | `{}` | Common container resources (applied to all deployments) |
+| scheduler | object | `{}` | Scheduler especific values. Has priority over common values. |
 | securityContext | object | `{}` | Custom container security context |
-| service.port | int | `80` | Kubernetes Service Type |
-| service.type | string | `"ClusterIP"` | Kubernetes Service Type |
 | serviceAccount.annotations | object | `{}` | Annotations to add to the service account |
 | serviceAccount.create | bool | `true` | Specifies whether a service account should be created |
 | serviceAccount.name | string | `""` | The name of the service account to use. If not set and create is true, a name is generated using the fullname template |
 | tolerations | list | `[]` | Kubernetes tolerations |
+| web | object | `{"ingress":{"annotations":{},"className":"nginx","enabled":false,"hosts":[],"tls":[]},"service":{"port":80,"type":"ClusterIP"}}` | Web especific values. Has priority over common values. |
+| web.ingress.annotations | object | `{}` | Web custom Ingress annotations  |
+| web.ingress.className | string | `"nginx"` | Web Ingress class name |
+| web.ingress.enabled | bool | `false` | Web Ingress enabled |
+| web.ingress.hosts | list | `[]` | Web list of hosts to expose web component. See values.yaml for an example. |
+| web.ingress.tls | list | `[]` | Web TLS secret for exposing web component with https. See values.yaml for an example. |
+| web.service.port | int | `80` | Port for web service |
+| web.service.type | string | `"ClusterIP"` | Web Kubernetes Service Type |
 
 ----------------------------------------------
 Autogenerated from chart metadata using [helm-docs v1.11.0](https://github.com/norwoodj/helm-docs/releases/v1.11.0)
