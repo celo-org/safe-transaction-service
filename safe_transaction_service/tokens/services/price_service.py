@@ -208,7 +208,6 @@ class PriceService:
         """
         if self.ethereum_network in (
             EthereumNetwork.CELO,
-            
         ):
             return self.kucoin_client.get_celo_usd_price()
 
