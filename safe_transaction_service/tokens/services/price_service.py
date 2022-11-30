@@ -100,14 +100,17 @@ class PriceService:
 
     @cached_property
     def enabled_price_oracles(self) -> Tuple[PriceOracle]:
+        # UniswapV3Oracle.UNISWAP_V3_ROUTER = '0x5615CDAb10dc425a742d643d949a7F474C01abc4' # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
+        # UniswapV2Oracle.ROUTER_ADDRESSES[EthereumNetwork.Celo] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121" # Ubeswap router address, same ABI as Uniswap v2 
+
         oracles = tuple(
             Oracle(self.ethereum_client)
             for Oracle in (
-                UniswapV3Oracle,
-                CowswapOracle,
-                UniswapV2Oracle,
+                CeloUniswapV3Oracle,
+                # CowswapOracle,
+                UniswapV2Oracle, # Sushiswap on Celo already supported
                 SushiswapOracle,
-                KyberOracle,
+                # KyberOracle,
             )
             if Oracle.is_available(self.ethereum_client)
         )
