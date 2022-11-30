@@ -206,7 +206,11 @@ class PriceService:
 
         :return: USD price for Ether
         """
-        if self.ethereum_network in (EthereumNetwork.CELO,):
+        if self.ethereum_network in (
+            EthereumNetwork.CELO,
+            EthereumNetwork.CELO_ALFAJORES,
+            EthereumNetwork.CELO_BAKLAVA,
+        ):
             return self.kucoin_client.get_celo_usd_price()
 
         if self.ethereum_network == EthereumNetwork.XDAI:
