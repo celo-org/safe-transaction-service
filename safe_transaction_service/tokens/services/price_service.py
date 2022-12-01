@@ -34,8 +34,14 @@ from gnosis.eth.oracles import (
     UnderlyingToken,
     UniswapV2Oracle,
     UniswapV3Oracle,
-    YearnOracle,
+    YearnOracle
 )
+from hexbytes import HexBytes
+from web3 import Web3
+from django.conf import settings
+from history.celo_contracts.blockchain_parameters import (
+        registry_abi,
+    )
 
 from safe_transaction_service.utils.redis import get_redis
 
@@ -100,16 +106,19 @@ class PriceService:
 
     @cached_property
     def enabled_price_oracles(self) -> Tuple[PriceOracle]:
-        # UniswapV3Oracle.UNISWAP_V3_ROUTER = '0x5615CDAb10dc425a742d643d949a7F474C01abc4' # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
-        # UniswapV2Oracle.ROUTER_ADDRESSES[EthereumNetwork.Celo] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121" # Ubeswap router address, same ABI as Uniswap v2 
+        UniswapV3Oracle.UNISWAP_V3_ROUTER = '0x5615CDAb10dc425a742d643d949a7F474C01abc4' # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
+        UniswapV2Oracle.PAIR_INIT_CODE = HexBytes("0xb3b8ff62960acea3a88039ebcf80699f15786f1b17cebd82802f7375827a339c")
+        UniswapV2Oracle.ROUTER_ADDRESSES[EthereumNetwork.CELO] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121" # Ubeswap router address, same ABI as Uniswap v2 
+        UniswapV2Oracle.ROUTER_ADDRESSES[EthereumNetwork.CELO_ALFAJORES] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"
 
         oracles = tuple(
             Oracle(self.ethereum_client)
             for Oracle in (
-                CeloUniswapV3Oracle,
-                # CowswapOracle,
-                UniswapV2Oracle, # Sushiswap on Celo already supported
-                SushiswapOracle,
+                UniswapV3Oracle,
+                UniswapV2Oracle,
+                SushiswapOracle, # Sushiswap on Celo already supported
+                # The following not used on Celo
+                # CowswapOracle, 
                 # KyberOracle,
             )
             if Oracle.is_available(self.ethereum_client)
@@ -280,8 +289,18 @@ class PriceService:
             except CannotGetPrice:
                 return self.binance_client.get_eth_usd_price()
 
-    # @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
-    # @cache_memoize(60 * 30, prefix="balances-get_token_eth_value")  # 30 minutes
+    @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
+    @cache_memoize(60 *60*24, prefix="balances-get_token_eth_value")  # 1 day
+    def get_celo_address(self):
+        web3 = Web3(Web3.HTTPProvider(settings.ETHEREUM_NODE_URL))
+        registry = web3.eth.contract(
+            address="0x000000000000000000000000000000000000ce10", abi=registry_abi
+        )
+        return registry.functions.getAddressForString("GoldToken").call()
+
+
+    @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
+    @cache_memoize(60 * 30, prefix="balances-get_token_eth_value")  # 30 minutes
     def get_token_eth_value(self, token_address: ChecksumAddress) -> float:
         """
         Uses multiple decentralized and centralized oracles to get token prices
@@ -289,18 +308,22 @@ class PriceService:
         :param token_address:
         :return: Current ether value for a given `token_address`
         """
+
+        CELO_TOKEN_ADDRESS = self.get_celo_address()
         if token_address in (
+            CELO_TOKEN_ADDRESS,
             "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # Used by some oracles
             NULL_ADDRESS,
-            # maybe could add Celo address here? 0x471EcE3750Da237f93B8E339c536989b8978a438
         ):  # Ether
             return 1.0
 
         for oracle in self.enabled_price_oracles:
             try:
-                return oracle.get_price(token_address)
+                # Token address is WETH by default
+                return oracle.get_price(token_address, CELO_TOKEN_ADDRESS)
             except OracleException:
                 print("Cannot get eth value for token-address=%s from %s" % (token_address, oracle.__class__.__name__,))
+
                 logger.info(
                     "Cannot get eth value for token-address=%s from %s",
                     token_address,
@@ -310,7 +333,7 @@ class PriceService:
         # Try pool tokens
         for oracle in self.enabled_price_pool_oracles:
             try:
-                return oracle.get_pool_token_price(token_address)
+                return oracle.get_price(token_address)
             except OracleException:
                 logger.info(
                     "Cannot get eth value for token-address=%s from %s",
