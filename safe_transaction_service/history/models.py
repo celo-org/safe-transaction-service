@@ -35,7 +35,6 @@ from eth_typing import ChecksumAddress
 from hexbytes import HexBytes
 from model_utils.models import TimeStampedModel
 from packaging.version import Version
-from web3 import Web3
 from web3.types import EventData
 
 from gnosis.eth.constants import ERC20_721_TRANSFER_TOPIC, NULL_ADDRESS
