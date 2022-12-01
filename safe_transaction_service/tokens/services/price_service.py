@@ -209,7 +209,11 @@ class PriceService:
 
         :return: USD price for Ether
         """
-        if self.ethereum_network in (EthereumNetwork.CELO,):
+        if self.ethereum_network in (
+            EthereumNetwork.CELO,
+            EthereumNetwork.CELO_ALFAJORES,
+            EthereumNetwork.CELO_BAKLAVA,
+        ):
             return self.kucoin_client.get_celo_usd_price()
 
         if self.ethereum_network == EthereumNetwork.XDAI:
@@ -276,8 +280,8 @@ class PriceService:
             except CannotGetPrice:
                 return self.binance_client.get_eth_usd_price()
 
-    @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
-    @cache_memoize(60 * 30, prefix="balances-get_token_eth_value")  # 30 minutes
+    # @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
+    # @cache_memoize(60 * 30, prefix="balances-get_token_eth_value")  # 30 minutes
     def get_token_eth_value(self, token_address: ChecksumAddress) -> float:
         """
         Uses multiple decentralized and centralized oracles to get token prices
@@ -288,6 +292,7 @@ class PriceService:
         if token_address in (
             "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # Used by some oracles
             NULL_ADDRESS,
+            # maybe could add Celo address here? 0x471EcE3750Da237f93B8E339c536989b8978a438
         ):  # Ether
             return 1.0
 
@@ -295,6 +300,7 @@ class PriceService:
             try:
                 return oracle.get_price(token_address)
             except OracleException:
+                print("Cannot get eth value for token-address=%s from %s" % (token_address, oracle.__class__.__name__,))
                 logger.info(
                     "Cannot get eth value for token-address=%s from %s",
                     token_address,
@@ -358,8 +364,10 @@ class PriceService:
         :param token_addresses:
         :return: eth prices with timestamp if ready on cache, `0.` and None otherwise
         """
+        print("get_cached_token_eth_values")
+        import random
         cache_keys = [
-            f"price-service:{token_address}:eth-price"
+            f"price-service:{token_address}:eth-price{random.random()}" # avoid cache
             for token_address in token_addresses
         ]
         results = self.redis.mget(cache_keys)  # eth_value:epoch_timestamp
@@ -377,6 +385,7 @@ class PriceService:
                     token_address, cache_key
                 )
                 if task_result.ready():
+                    print("test me")
                     yield task_result.get()
                 else:
                     yield EthValueWithTimestamp(0.0, timezone.now())
