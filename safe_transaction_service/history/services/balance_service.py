@@ -21,6 +21,7 @@ from safe_transaction_service.tokens.services.price_service import (
     FiatCode,
     PriceService,
     PriceServiceProvider,
+    get_celo_address,
 )
 from safe_transaction_service.utils.redis import get_redis
 
@@ -117,9 +118,12 @@ class BalanceService:
         :param exclude_spam:
         :return: ERC20 tokens filtered by spam or trusted
         """
-        base_queryset = Token.objects.filter(
-            Q(address__in=erc20_addresses) | Q(events_bugged=True)
-        ).order_by("name").exclude(address="0x471EcE3750Da237f93B8E339c536989b8978a438") # exclude Celo Token, as it is already considered as the native token
+
+        base_queryset = (
+            Token.objects.filter(Q(address__in=erc20_addresses) | Q(events_bugged=True))
+            .order_by("name")
+            .exclude(address=get_celo_address())
+        )  # exclude Celo Token, as it is already considered as the native token
 
         if only_trusted:
             addresses = list(
@@ -162,7 +166,6 @@ class BalanceService:
         :return: `{'token_address': str, 'balance': int}`. For ether, `token_address` is `None`. Elements are cached
         for one hour
         """
-        print("get_balances")
         # Cache based on the number of erc20 events and the ether transferred, and also check outgoing ether
         # transactions that will not emit events on non L2 networks
         events_sending_eth = (
@@ -179,7 +182,7 @@ class BalanceService:
             f"balances:{safe_address}:{only_trusted}:{exclude_spam}:"
             f"{number_erc20_events}:{number_eth_events}:{events_sending_eth}"
         )
-        if balances := django_cache.get(cache_key) and False:
+        if balances := django_cache.get(cache_key):
             return balances
         else:
             balances = self._get_balances(safe_address, only_trusted, exclude_spam)
@@ -203,8 +206,6 @@ class BalanceService:
         ), f"Not valid address {safe_address} for getting balances"
 
         all_erc20_addresses = ERC20Transfer.objects.tokens_used_by_address(safe_address)
-        print("_get_balances")
-        # print(all_erc20_addresses)
         for address in all_erc20_addresses:
             # Store tokens in database if not present
             self.get_token_info(address)  # This is cached
@@ -232,8 +233,8 @@ class BalanceService:
             balances.append(Balance(**balance))
         return balances
 
-    # @cachedmethod(cache=operator.attrgetter("cache_token_info"))
-    # @cache_memoize(60 * 60, prefix="balances-get_token_info")  # 1 hour
+    @cachedmethod(cache=operator.attrgetter("cache_token_info"))
+    @cache_memoize(60 * 60, prefix="balances-get_token_info")  # 1 hour
     def get_token_info(
         self, token_address: ChecksumAddress
     ) -> Optional[Erc20InfoWithLogo]:
@@ -275,8 +276,6 @@ class BalanceService:
             logger.warning("Cannot get network ether price", exc_info=True)
             eth_price = 0
         balances_with_usd = []
-        print(balances)
-        print(balances[0].get_price_address())
         price_token_addresses = [balance.get_price_address() for balance in balances]
         token_eth_values_with_timestamp = (
             self.price_service.get_cached_token_eth_values(price_token_addresses)

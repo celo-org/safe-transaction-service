@@ -14,7 +14,6 @@ from eth_abi.exceptions import DecodingError
 from eth_typing import ChecksumAddress
 from imagekit.models import ProcessedImageField
 from pilkit.processors import Resize
-from web3.exceptions import BadFunctionCallOutput
 
 from gnosis.eth import EthereumClientProvider, InvalidERC20Info, InvalidERC721Info
 from gnosis.eth.django.models import EthereumAddressV2Field

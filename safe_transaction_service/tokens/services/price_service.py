@@ -2,28 +2,30 @@ import operator
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from functools import cached_property
+from functools import cached_property, lru_cache
 from typing import Iterator, List, Optional, Sequence, Tuple
 
+from django.conf import settings
 from django.utils import timezone
 
 from cache_memoize import cache_memoize
 from cachetools import TTLCache, cachedmethod
 from celery.utils.log import get_task_logger
 from eth_typing import ChecksumAddress
+from hexbytes import HexBytes
+from history.celo_contracts.blockchain_parameters import registry_abi
 from redis import Redis
+from web3 import Web3
 
 from gnosis.eth import EthereumClient, EthereumClientProvider
 from gnosis.eth.constants import NULL_ADDRESS
 from gnosis.eth.ethereum_client import EthereumNetwork
-from gnosis.eth.oracles import (
+from gnosis.eth.oracles import (  # CowswapOracle,; KyberOracle,
     AaveOracle,
     BalancerOracle,
     ComposedPriceOracle,
-    CowswapOracle,
     CurveOracle,
     EnzymeOracle,
-    KyberOracle,
     MooniswapOracle,
     OracleException,
     PoolTogetherOracle,
@@ -34,14 +36,8 @@ from gnosis.eth.oracles import (
     UnderlyingToken,
     UniswapV2Oracle,
     UniswapV3Oracle,
-    YearnOracle
+    YearnOracle,
 )
-from hexbytes import HexBytes
-from web3 import Web3
-from django.conf import settings
-from history.celo_contracts.blockchain_parameters import (
-        registry_abi,
-    )
 
 from safe_transaction_service.utils.redis import get_redis
 
@@ -60,6 +56,15 @@ logger = get_task_logger(__name__)
 class FiatCode(Enum):
     USD = 1
     EUR = 2
+
+
+@lru_cache(maxsize=None)
+def get_celo_address():
+    web3 = Web3(Web3.HTTPProvider(settings.ETHEREUM_NODE_URL))
+    registry = web3.eth.contract(
+        address="0x000000000000000000000000000000000000ce10", abi=registry_abi
+    )
+    return registry.functions.getAddressForString("GoldToken").call()
 
 
 @dataclass
@@ -106,19 +111,25 @@ class PriceService:
 
     @cached_property
     def enabled_price_oracles(self) -> Tuple[PriceOracle]:
-        UniswapV3Oracle.UNISWAP_V3_ROUTER = '0x5615CDAb10dc425a742d643d949a7F474C01abc4' # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
-        UniswapV2Oracle.PAIR_INIT_CODE = HexBytes("0xb3b8ff62960acea3a88039ebcf80699f15786f1b17cebd82802f7375827a339c")
-        UniswapV2Oracle.ROUTER_ADDRESSES[EthereumNetwork.CELO] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121" # Ubeswap router address, same ABI as Uniswap v2 
-        UniswapV2Oracle.ROUTER_ADDRESSES[EthereumNetwork.CELO_ALFAJORES] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"
+        UniswapV3Oracle.UNISWAP_V3_ROUTER = "0x5615CDAb10dc425a742d643d949a7F474C01abc4"  # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
+        UniswapV2Oracle.PAIR_INIT_CODE = HexBytes(
+            "0xb3b8ff62960acea3a88039ebcf80699f15786f1b17cebd82802f7375827a339c"
+        )
+        UniswapV2Oracle.ROUTER_ADDRESSES[
+            EthereumNetwork.CELO
+        ] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"  # Ubeswap router address, same ABI as Uniswap v2
+        UniswapV2Oracle.ROUTER_ADDRESSES[
+            EthereumNetwork.CELO_ALFAJORES
+        ] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"
 
         oracles = tuple(
             Oracle(self.ethereum_client)
             for Oracle in (
                 UniswapV3Oracle,
                 UniswapV2Oracle,
-                SushiswapOracle, # Sushiswap on Celo already supported
+                SushiswapOracle,  # Sushiswap on Celo already supported
                 # The following not used on Celo
-                # CowswapOracle, 
+                # CowswapOracle,
                 # KyberOracle,
             )
             if Oracle.is_available(self.ethereum_client)
@@ -290,16 +301,6 @@ class PriceService:
                 return self.binance_client.get_eth_usd_price()
 
     @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
-    @cache_memoize(60 *60*24, prefix="balances-get_token_eth_value")  # 1 day
-    def get_celo_address(self):
-        web3 = Web3(Web3.HTTPProvider(settings.ETHEREUM_NODE_URL))
-        registry = web3.eth.contract(
-            address="0x000000000000000000000000000000000000ce10", abi=registry_abi
-        )
-        return registry.functions.getAddressForString("GoldToken").call()
-
-
-    @cachedmethod(cache=operator.attrgetter("cache_token_eth_value"))
     @cache_memoize(60 * 30, prefix="balances-get_token_eth_value")  # 30 minutes
     def get_token_eth_value(self, token_address: ChecksumAddress) -> float:
         """
@@ -309,7 +310,7 @@ class PriceService:
         :return: Current ether value for a given `token_address`
         """
 
-        CELO_TOKEN_ADDRESS = self.get_celo_address()
+        CELO_TOKEN_ADDRESS = get_celo_address()
         if token_address in (
             CELO_TOKEN_ADDRESS,
             "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # Used by some oracles
@@ -322,7 +323,13 @@ class PriceService:
                 # Token address is WETH by default
                 return oracle.get_price(token_address, CELO_TOKEN_ADDRESS)
             except OracleException:
-                print("Cannot get eth value for token-address=%s from %s" % (token_address, oracle.__class__.__name__,))
+                print(
+                    "Cannot get eth value for token-address=%s from %s"
+                    % (
+                        token_address,
+                        oracle.__class__.__name__,
+                    )
+                )
 
                 logger.info(
                     "Cannot get eth value for token-address=%s from %s",
@@ -333,7 +340,7 @@ class PriceService:
         # Try pool tokens
         for oracle in self.enabled_price_pool_oracles:
             try:
-                return oracle.get_price(token_address)
+                return oracle.get_pool_token_price(token_address)
             except OracleException:
                 logger.info(
                     "Cannot get eth value for token-address=%s from %s",
@@ -387,10 +394,8 @@ class PriceService:
         :param token_addresses:
         :return: eth prices with timestamp if ready on cache, `0.` and None otherwise
         """
-        print("get_cached_token_eth_values")
-        import random
         cache_keys = [
-            f"price-service:{token_address}:eth-price{random.random()}" # avoid cache
+            f"price-service:{token_address}:eth-price"
             for token_address in token_addresses
         ]
         results = self.redis.mget(cache_keys)  # eth_value:epoch_timestamp
@@ -408,7 +413,6 @@ class PriceService:
                     token_address, cache_key
                 )
                 if task_result.ready():
-                    print("test me")
                     yield task_result.get()
                 else:
                     yield EthValueWithTimestamp(0.0, timezone.now())
