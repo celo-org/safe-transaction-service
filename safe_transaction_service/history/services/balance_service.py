@@ -14,6 +14,7 @@ from redis import Redis
 
 from gnosis.eth import EthereumClient, EthereumClientProvider
 from gnosis.eth.utils import fast_is_checksum_address
+from gnosis.eth.ethereum_client import EthereumNetwork 
 
 from safe_transaction_service.tokens.clients import CannotGetPrice
 from safe_transaction_service.tokens.models import Token
