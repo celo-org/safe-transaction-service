@@ -14,9 +14,9 @@ from redis import Redis
 
 from gnosis.eth import EthereumClient, EthereumClientProvider
 from gnosis.eth.utils import fast_is_checksum_address
-from gnosis.eth.ethereum_client import EthereumNetwork 
 
 from safe_transaction_service.tokens.clients import CannotGetPrice
+from safe_transaction_service.tokens.constants import CELO_NETWORKS
 from safe_transaction_service.tokens.models import Token
 from safe_transaction_service.tokens.services.price_service import (
     FiatCode,
@@ -120,14 +120,14 @@ class BalanceService:
         :return: ERC20 tokens filtered by spam or trusted
         """
 
-        base_queryset = (
-            Token.objects.filter(Q(address__in=erc20_addresses) | Q(events_bugged=True))
-            .order_by("name")
+        base_queryset = Token.objects.filter(
+            Q(address__in=erc20_addresses) | Q(events_bugged=True)
+        ).order_by(
+            "name"
         )  # exclude Celo Token, as it is already considered as the native token
 
-        if self.ethereum_client.get_network() in (EthereumNetwork.CELO, EthereumNetwork.CELO_ALFAJORES):
+        if self.ethereum_client.get_network() in CELO_NETWORKS:
             base_queryset = base_queryset.exclude(address=get_celo_address())
-
 
         if only_trusted:
             addresses = list(

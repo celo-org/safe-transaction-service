@@ -13,7 +13,6 @@ from cachetools import TTLCache, cachedmethod
 from celery.utils.log import get_task_logger
 from eth_typing import ChecksumAddress
 from hexbytes import HexBytes
-from .celo_contracts import registry_abi
 from redis import Redis
 from web3 import Web3
 
@@ -48,7 +47,9 @@ from ..clients import (
     KrakenClient,
     KucoinClient,
 )
+from ..constants import CELO_NETWORKS
 from ..tasks import EthValueWithTimestamp, calculate_token_eth_price_task
+from .celo_contracts import registry_abi
 
 logger = get_task_logger(__name__)
 
@@ -112,7 +113,7 @@ class PriceService:
     @cached_property
     def enabled_price_oracles(self) -> Tuple[PriceOracle]:
 
-        if self.ethereum_client.get_network() in (EthereumNetwork.CELO, EthereumNetwork.CELO_ALFAJORES):
+        if self.ethereum_client.get_network() in CELO_NETWORKS:
             UniswapV3Oracle.UNISWAP_V3_ROUTER = "0x5615CDAb10dc425a742d643d949a7F474C01abc4"  # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
             UniswapV2Oracle.PAIR_INIT_CODE = HexBytes(
                 "0xb3b8ff62960acea3a88039ebcf80699f15786f1b17cebd82802f7375827a339c"
@@ -231,11 +232,7 @@ class PriceService:
 
         :return: USD price for Ether
         """
-        if self.ethereum_network in (
-            EthereumNetwork.CELO,
-            EthereumNetwork.CELO_ALFAJORES,
-            EthereumNetwork.CELO_BAKLAVA,
-        ):
+        if self.ethereum_network in (CELO_NETWORKS):
             return self.kucoin_client.get_celo_usd_price()
 
         if self.ethereum_network == EthereumNetwork.XDAI:
@@ -312,10 +309,10 @@ class PriceService:
         :return: Current ether value for a given `token_address`
         """
 
-        CELO_TOKEN_ADDRESS=None
-        if self.ethereum_client.get_network() in (EthereumNetwork.CELO, EthereumNetwork.CELO_ALFAJORES):
+        CELO_TOKEN_ADDRESS = None
+        if self.ethereum_client.get_network() in CELO_NETWORKS:
             CELO_TOKEN_ADDRESS = get_celo_address()
-            
+
         if token_address in (
             CELO_TOKEN_ADDRESS,
             "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # Used by some oracles
