@@ -122,8 +122,11 @@ class BalanceService:
         base_queryset = (
             Token.objects.filter(Q(address__in=erc20_addresses) | Q(events_bugged=True))
             .order_by("name")
-            .exclude(address=get_celo_address())
         )  # exclude Celo Token, as it is already considered as the native token
+
+        if self.ethereum_client.get_network() in (EthereumNetwork.CELO, EthereumNetwork.CELO_ALFAJORES):
+            base_queryset = base_queryset.exclude(address=get_celo_address())
+
 
         if only_trusted:
             addresses = list(

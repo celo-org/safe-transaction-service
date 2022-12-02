@@ -111,16 +111,18 @@ class PriceService:
 
     @cached_property
     def enabled_price_oracles(self) -> Tuple[PriceOracle]:
-        UniswapV3Oracle.UNISWAP_V3_ROUTER = "0x5615CDAb10dc425a742d643d949a7F474C01abc4"  # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
-        UniswapV2Oracle.PAIR_INIT_CODE = HexBytes(
-            "0xb3b8ff62960acea3a88039ebcf80699f15786f1b17cebd82802f7375827a339c"
-        )
-        UniswapV2Oracle.ROUTER_ADDRESSES[
-            EthereumNetwork.CELO
-        ] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"  # Ubeswap router address, same ABI as Uniswap v2
-        UniswapV2Oracle.ROUTER_ADDRESSES[
-            EthereumNetwork.CELO_ALFAJORES
-        ] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"
+
+        if self.ethereum_client.get_network() in (EthereumNetwork.CELO, EthereumNetwork.CELO_ALFAJORES):
+            UniswapV3Oracle.UNISWAP_V3_ROUTER = "0x5615CDAb10dc425a742d643d949a7F474C01abc4"  # Uniswap router deployment on Celo https://docs.uniswap.org/contracts/v3/reference/deployments
+            UniswapV2Oracle.PAIR_INIT_CODE = HexBytes(
+                "0xb3b8ff62960acea3a88039ebcf80699f15786f1b17cebd82802f7375827a339c"
+            )
+            UniswapV2Oracle.ROUTER_ADDRESSES[
+                EthereumNetwork.CELO
+            ] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"  # Ubeswap router address, same ABI as Uniswap v2
+            UniswapV2Oracle.ROUTER_ADDRESSES[
+                EthereumNetwork.CELO_ALFAJORES
+            ] = "0xE3D8bd6Aed4F159bc8000a9cD47CffDb95F96121"
 
         oracles = tuple(
             Oracle(self.ethereum_client)
