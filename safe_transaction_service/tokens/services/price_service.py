@@ -2,7 +2,7 @@ import operator
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from functools import cached_property, lru_cache
+from functools import cached_property, cache
 from typing import Iterator, List, Optional, Sequence, Tuple
 
 from django.conf import settings
@@ -58,7 +58,7 @@ class FiatCode(Enum):
     EUR = 2
 
 
-@lru_cache(maxsize=None)
+@cache
 def get_celo_address():
     web3 = Web3(Web3.HTTPProvider(settings.ETHEREUM_NODE_URL))
     registry = web3.eth.contract(
