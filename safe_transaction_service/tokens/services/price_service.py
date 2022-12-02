@@ -2,7 +2,7 @@ import operator
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from functools import cached_property, cache
+from functools import cache, cached_property
 from typing import Iterator, List, Optional, Sequence, Tuple
 
 from django.conf import settings
