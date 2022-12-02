@@ -13,7 +13,7 @@ from cachetools import TTLCache, cachedmethod
 from celery.utils.log import get_task_logger
 from eth_typing import ChecksumAddress
 from hexbytes import HexBytes
-from history.celo_contracts.blockchain_parameters import registry_abi
+from .celo_contracts import registry_abi
 from redis import Redis
 from web3 import Web3
 
