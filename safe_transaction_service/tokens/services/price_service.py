@@ -312,7 +312,10 @@ class PriceService:
         :return: Current ether value for a given `token_address`
         """
 
-        CELO_TOKEN_ADDRESS = get_celo_address()
+        CELO_TOKEN_ADDRESS=None
+        if self.ethereum_client.get_network() in (EthereumNetwork.CELO, EthereumNetwork.CELO_ALFAJORES):
+            CELO_TOKEN_ADDRESS = get_celo_address()
+            
         if token_address in (
             CELO_TOKEN_ADDRESS,
             "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",  # Used by some oracles
