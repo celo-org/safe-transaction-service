@@ -16,11 +16,13 @@ from gnosis.eth import EthereumClient, EthereumClientProvider
 from gnosis.eth.utils import fast_is_checksum_address
 
 from safe_transaction_service.tokens.clients import CannotGetPrice
+from safe_transaction_service.tokens.constants import CELO_NETWORKS
 from safe_transaction_service.tokens.models import Token
 from safe_transaction_service.tokens.services.price_service import (
     FiatCode,
     PriceService,
     PriceServiceProvider,
+    get_celo_address,
 )
 from safe_transaction_service.utils.redis import get_redis
 
@@ -117,9 +119,16 @@ class BalanceService:
         :param exclude_spam:
         :return: ERC20 tokens filtered by spam or trusted
         """
+
         base_queryset = Token.objects.filter(
             Q(address__in=erc20_addresses) | Q(events_bugged=True)
-        ).order_by("name")
+        ).order_by(
+            "name"
+        )  # exclude Celo Token, as it is already considered as the native token
+
+        if self.ethereum_client.get_network() in CELO_NETWORKS:
+            base_queryset = base_queryset.exclude(address=get_celo_address())
+
         if only_trusted:
             addresses = list(
                 base_queryset.erc20()
@@ -161,7 +170,6 @@ class BalanceService:
         :return: `{'token_address': str, 'balance': int}`. For ether, `token_address` is `None`. Elements are cached
         for one hour
         """
-
         # Cache based on the number of erc20 events and the ether transferred, and also check outgoing ether
         # transactions that will not emit events on non L2 networks
         events_sending_eth = (
@@ -265,6 +273,7 @@ class BalanceService:
         balances: List[Balance] = self.get_balances(
             safe_address, only_trusted, exclude_spam
         )
+
         try:
             eth_price = self.price_service.get_native_coin_usd_price()
         except CannotGetPrice:
