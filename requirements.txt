@@ -1,6 +1,6 @@
 cachetools==4.2.2
 celery==5.1.2
-django==3.2.7
+django==4.1.4
 django-authtools==1.7.0
 django-cache-memoize==0.1.10
 django-celery-beat==2.2.1
