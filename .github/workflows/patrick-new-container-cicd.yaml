@@ -8,7 +8,7 @@ on:
 
 jobs:
   Build-Container-dev:
-    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@968d632cd8dbf70cd3cc1b6aa15316bd1144699d
+    uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@f378e81eac18df9760cc1a6f5c16276b258196a7
     if: github.ref != 'refs/heads/feat/celo'
     with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_NON_PROD }}
@@ -19,11 +19,13 @@ jobs:
 
 
   Build-Container:
-   uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@968d632cd8dbf70cd3cc1b6aa15316bd1144699d
+   uses: celo-org/reusable-workflows/.github/workflows/container-cicd-trivy.yaml@f378e81eac18df9760cc1a6f5c16276b258196a7
    if: github.ref == 'refs/heads/feat/celo'
    with:
       workload-id-provider: ${{ vars.WORKLOAD_ID_PROVIDER_PROD }}
       service-account:  'safe-tx-service-images@devopsre.iam.gserviceaccount.com'
       artifact-registry: ${{ vars.SAFE_TRANSACTION_SERVICE_IMAGE_REPO }}/safe-transaction-service
       tag: latest
-      context: ./docker/web/
+      context: .
+      file: docker/web/Dockerfile
+
