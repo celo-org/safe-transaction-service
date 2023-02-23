@@ -16,6 +16,7 @@ jobs:
       artifact-registry: ${{ vars.DEV_IMAGE_REPO }}/safe-transaction-service
       tag: testing
       context: ./docker/web
+      file: docker/web/Dockerfile
 
 
   Build-Container:
