@@ -15,7 +15,7 @@ jobs:
       service-account:  'safe-tx-service-images-dev@devopsre.iam.gserviceaccount.com'
       artifact-registry: ${{ vars.DEV_IMAGE_REPO }}/safe-transaction-service
       tag: testing
-      context: ./docker/web
+      context: .
       file: docker/web/Dockerfile
 
 
