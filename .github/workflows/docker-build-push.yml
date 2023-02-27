@@ -19,7 +19,6 @@ jobs:
       file: docker/web/Dockerfile
       trivy: true
 
-
   Build-Container:
    uses: celo-org/reusable-workflows/.github/workflows/container-cicd.yaml@v1.0
    if: github.ref == 'refs/heads/feat/celo'
@@ -31,4 +30,3 @@ jobs:
       context: .
       file: docker/web/Dockerfile
       trivy: true
-
