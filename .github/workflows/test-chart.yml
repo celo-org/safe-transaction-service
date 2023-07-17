@@ -73,7 +73,7 @@ jobs:
           helm template ./helm-chart -f helm-chart/values-test.yaml
 
       - name: Create k8s Kind Cluster
-        uses: helm/kind-action@v1.3.0
+        uses: helm/kind-action@v1.8.0
 
       - name: Check k8s objects conform with API 
         run: helm template ./helm-chart -f helm-chart/values-test.yaml --validate
