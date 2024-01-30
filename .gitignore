@@ -124,3 +124,6 @@ safe_transaction_service/media
 
 # User-specific stuff:
 .idea/
+
+# Ignore generated credentials from google-github-actions/auth
+gha-creds-*.json
